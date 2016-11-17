@@ -40,8 +40,8 @@ class UploadServiceProvider implements ServiceProviderInterface
         };
 
         $this->registerFileFactory($pimple);
-        $this->registerStorageProto($pimple);
-        $this->registerValidationProto($pimple);
+        $this->registerStorageFactory($pimple);
+        $this->registerValidationFactory($pimple);
 
     }
 
@@ -55,15 +55,23 @@ class UploadServiceProvider implements ServiceProviderInterface
         });
     }
 
-    public function registerStorageProto(Container $pimple)
+    public function registerStorageFactory(Container $pimple)
     {
         $pimple['upload.storage.factory'] = $pimple->protect(function ($options) use ($pimple) {
             if (empty($options['directory'])) {
                 throw new \RuntimeException('directory is not defined.');
             }
-            $pathToDirectory = $options['directory'];
+            if (empty($pimple['upload_dir_path'])) {
+                throw new \RuntimeException('upload_dir_path is not defined.');
+            }
+            $pathToDirectory = $pimple['upload_dir_path'].$options['directory'];
+
             if (!empty($options['date_directory'])) {
                 $pathToDirectory .= '/' . date('Ymd');
+            }
+
+            if (!file_exists($pathToDirectory) || !is_dir($pathToDirectory)) {
+                mkdir($pathToDirectory, 0755, true);
             }
 
             return new FileSystem($pathToDirectory);
@@ -71,7 +79,7 @@ class UploadServiceProvider implements ServiceProviderInterface
     }
 
 
-    public function registerValidationProto(Container $pimple)
+    public function registerValidationFactory(Container $pimple)
     {
         $pimple['upload.validation.mime_type.factory'] = $pimple->protect(function ($options) use ($pimple) {
             if (isset($options['mimetypes'])) {

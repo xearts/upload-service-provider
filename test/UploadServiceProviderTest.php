@@ -15,9 +15,10 @@ class UploadServiceProviderTest extends \PHPUnit_Framework_TestCase
             'uploads.options' => array(
                 'test' => array(
                     'paramname' => 'file',
-                    'directory' => __DIR__,
+                    'directory' => '/' . basename(__DIR__),
                 ),
             ),
+            'upload_dir_path' => dirname(__DIR__),
         ));
 
         $this->assertInstanceOf('Upload\File', $container['uploads']['test']);
