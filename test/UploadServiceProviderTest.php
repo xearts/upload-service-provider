@@ -9,7 +9,7 @@ class UploadServiceProviderTest extends \PHPUnit_Framework_TestCase
 {
     public function testFileRegistered()
     {
-        $_FILES['file'] = array('name' => '', 'error' => '', 'tmp_name' => '');
+        $_FILES['file'] = array('name' => '', 'error' => UPLOAD_ERR_OK, 'tmp_name' => '');
         $container = new Container();
         $container->register(new UploadServiceProvider(), array(
             'uploads.options' => array(
